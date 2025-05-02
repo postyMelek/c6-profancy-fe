@@ -34,7 +34,7 @@ export default function DetailAkun() {
         const token = localStorage.getItem("token");
 
         const response = await fetch(
-          `https://sahabattens-tenscoffeeid.up.railway.app/api/account/${username}`,
+          `http://localhost:8080/api/account/${username}`,
           {
             method: "GET",
             headers: {
@@ -50,7 +50,9 @@ export default function DetailAkun() {
         const result = await response.json();
         setAccountData(result.data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred");
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
         console.error("Error fetching account data:", err);
       } finally {
         setIsLoading(false);
@@ -73,42 +75,42 @@ export default function DetailAkun() {
             <div className="space-y-6">
               {/* Skeleton untuk beberapa field di kolom kiri */}
               <div>
-                <Skeleton className="h-4 w-24 mb-2" /> 
+                <Skeleton className="h-4 w-24 mb-2" />
                 <Skeleton className="h-4 w-40" />
               </div>
               <div>
-                <Skeleton className="h-4 w-24 mb-2" /> 
+                <Skeleton className="h-4 w-24 mb-2" />
                 <Skeleton className="h-4 w-40" />
               </div>
               <div>
-                <Skeleton className="h-4 w-24 mb-2" /> 
+                <Skeleton className="h-4 w-24 mb-2" />
                 <Skeleton className="h-4 w-40" />
               </div>
               <div>
-                <Skeleton className="h-4 w-24 mb-2" /> 
+                <Skeleton className="h-4 w-24 mb-2" />
                 <Skeleton className="h-4 w-40" />
               </div>
             </div>
             <div className="space-y-6">
               {/* Skeleton untuk beberapa field di kolom kanan */}
               <div>
-                <Skeleton className="h-4 w-24 mb-2" /> 
+                <Skeleton className="h-4 w-24 mb-2" />
                 <Skeleton className="h-4 w-40" />
               </div>
               <div>
-                <Skeleton className="h-4 w-24 mb-2" /> 
+                <Skeleton className="h-4 w-24 mb-2" />
                 <Skeleton className="h-4 w-40" />
               </div>
               <div>
-                <Skeleton className="h-4 w-24 mb-2" /> 
+                <Skeleton className="h-4 w-24 mb-2" />
                 <Skeleton className="h-4 w-40" />
               </div>
               <div>
-                <Skeleton className="h-4 w-24 mb-2" /> 
+                <Skeleton className="h-4 w-24 mb-2" />
                 <Skeleton className="h-4 w-40" />
               </div>
               <div>
-                <Skeleton className="h-4 w-24 mb-2" /> 
+                <Skeleton className="h-4 w-24 mb-2" />
                 <Skeleton className="h-4 w-40" />
               </div>
             </div>

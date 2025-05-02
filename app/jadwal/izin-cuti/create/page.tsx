@@ -78,14 +78,11 @@ export default function CreateLeaveRequestPage() {
     // Fetch user profile for additional info
     const fetchUserProfile = async () => {
       try {
-        const response = await fetch(
-          `https://sahabattens-tenscoffeeid.up.railway.app/api/user/profile`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await fetch(`http://localhost:8080/api/user/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (response.ok) {
           const data = await response.json();
@@ -178,7 +175,7 @@ export default function CreateLeaveRequestPage() {
       };
 
       const response = await fetch(
-        "https://sahabattens-tenscoffeeid.up.railway.app/api/shift-management/leave-request/create",
+        "http://localhost:8080/api/shift-management/leave-request/create",
         {
           method: "POST",
           headers: {
@@ -235,7 +232,7 @@ export default function CreateLeaveRequestPage() {
           />
         </div>
       )}
-  
+
       <div className="container mx-auto p-6">
         <div className="flex flex-col">
           <div className="flex items-center gap-4 mb-6">
@@ -246,7 +243,7 @@ export default function CreateLeaveRequestPage() {
             </Link>
             <h1 className="text-2xl font-bold">Buat Permohonan Izin/Cuti</h1>
           </div>
-  
+
           <Card className="w-full max-w-2xl mx-auto">
             <CardHeader>
               <CardTitle>Form Permohonan</CardTitle>
@@ -262,7 +259,7 @@ export default function CreateLeaveRequestPage() {
                     className="bg-gray-50"
                   />
                 </div>
-  
+
                 {outlet && (
                   <div className="space-y-2">
                     <Label htmlFor="outlet">Outlet</Label>
@@ -274,7 +271,7 @@ export default function CreateLeaveRequestPage() {
                     />
                   </div>
                 )}
-  
+
                 <div className="space-y-2">
                   <Label htmlFor="date">Tanggal Izin/Cuti</Label>
                   <Popover>
@@ -295,7 +292,9 @@ export default function CreateLeaveRequestPage() {
                         selected={date}
                         onSelect={setDate}
                         initialFocus
-                        disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
+                        disabled={(d) =>
+                          d < new Date(new Date().setHours(0, 0, 0, 0))
+                        }
                       />
                     </PopoverContent>
                   </Popover>
@@ -303,7 +302,7 @@ export default function CreateLeaveRequestPage() {
                     <p className="text-red-500 text-sm">{errors.date}</p>
                   )}
                 </div>
-  
+
                 <div className="space-y-2">
                   <Label htmlFor="leaveType">Jenis Permohonan</Label>
                   <Select value={leaveType} onValueChange={setLeaveType}>
@@ -322,7 +321,7 @@ export default function CreateLeaveRequestPage() {
                     <p className="text-red-500 text-sm">{errors.leaveType}</p>
                   )}
                 </div>
-  
+
                 <div className="space-y-2">
                   <Label htmlFor="reason">Alasan</Label>
                   <Textarea
@@ -337,7 +336,7 @@ export default function CreateLeaveRequestPage() {
                     <p className="text-red-500 text-sm">{errors.reason}</p>
                   )}
                 </div>
-  
+
                 <div className="flex justify-end space-x-4 pt-4">
                   <Link href="/jadwal/izin-cuti/barista">
                     <Button variant="outline" type="button">
@@ -354,5 +353,5 @@ export default function CreateLeaveRequestPage() {
         </div>
       </div>
     </>
-  )
+  );
 }

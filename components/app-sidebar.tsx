@@ -80,6 +80,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         { title: "Ujian", url: "/training/ujian" },
         { title: "Materi", url: "/training-materials" },
         { title: "Peer Review", url: "/peer-review" },
+        { title: "Barista", url: "/barista" },
       ],
     },
     {
@@ -94,6 +95,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           onClick: handleIzinCutiClick,
         },
         { title: "Shift", url: "/jadwal/shift" },
+        { title: "Dashboard", url: "/jadwal/shift/dashboard" },
       ],
     },
   ];

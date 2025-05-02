@@ -52,7 +52,7 @@ export default function DaftarAkun() {
         }
 
         const response = await fetch(
-          "https://sahabattens-tenscoffeeid.up.railway.app/api/account/viewall",
+          "http://localhost:8080/api/account/viewall",
           {
             method: "GET",
             headers: {
@@ -69,7 +69,9 @@ export default function DaftarAkun() {
 
         const result = await response.json();
         if (result?.data) {
-          const mappedUsers: UserData[] = (result.data as UserApiResponse[]).map((item) => ({
+          const mappedUsers: UserData[] = (
+            result.data as UserApiResponse[]
+          ).map((item) => ({
             username: item.username ?? "-",
             name: item.fullName ?? "-",
             role: item.role ?? "-",
@@ -77,7 +79,7 @@ export default function DaftarAkun() {
             outlet: item.outlet ?? "-",
             status: item.status === "Revoked" ? "Revoked" : "Active",
           }));
-          
+
           setUsers(mappedUsers);
         }
       } catch (err) {
@@ -105,13 +107,17 @@ export default function DaftarAkun() {
     const matchesOutlet = filterOutlet ? user.outlet === filterOutlet : true;
     const matchesCurrentOutlet =
       userRole !== "Admin" ? user.outlet === currentUserOutlet : true;
-    return matchesSearch && matchesRole && matchesOutlet && matchesCurrentOutlet;
+    return (
+      matchesSearch && matchesRole && matchesOutlet && matchesCurrentOutlet
+    );
   });
 
   // Sort data; prioritas diberikan pada current user agar tampil di atas
   const displayedUsers = filteredUsers.sort((a, b) => {
-    if (a.username === currentUsername && b.username !== currentUsername) return -1;
-    if (b.username === currentUsername && a.username !== currentUsername) return 1;
+    if (a.username === currentUsername && b.username !== currentUsername)
+      return -1;
+    if (b.username === currentUsername && a.username !== currentUsername)
+      return 1;
     return sortOrder === "asc"
       ? a.name.localeCompare(b.name)
       : b.name.localeCompare(a.name);
@@ -185,8 +191,12 @@ export default function DaftarAkun() {
           >
             <option value="">Filter by Outlet</option>
             <option value="Tens Coffee Margonda">Tens Coffee Margonda</option>
-            <option value="Tens Coffee Kantin Vokasi UI">Tens Coffee Kantin Vokasi UI</option>
-            <option value="Tens Coffee UIN Ciputat">Tens Coffee UIN Ciputat</option>
+            <option value="Tens Coffee Kantin Vokasi UI">
+              Tens Coffee Kantin Vokasi UI
+            </option>
+            <option value="Tens Coffee UIN Ciputat">
+              Tens Coffee UIN Ciputat
+            </option>
             <option value="Tens Coffee Pamulang">Tens Coffee Pamulang</option>
             <option value="Tens Coffee UPN Veteran Jakarta">
               Tens Coffee UPN Veteran Jakarta
@@ -304,7 +314,10 @@ export default function DaftarAkun() {
               ))}
               {displayedUsers.length === 0 && (
                 <tr>
-                  <td colSpan={userRole === "Admin" ? 7 : 6} className="py-4 px-6 text-center">
+                  <td
+                    colSpan={userRole === "Admin" ? 7 : 6}
+                    className="py-4 px-6 text-center"
+                  >
                     Tidak ada data.
                   </td>
                 </tr>

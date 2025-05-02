@@ -11,13 +11,14 @@ interface Outlet {
 
 export default function TambahLogLembur() {
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState<{ type: string; message: string } | null>(null);
+  const [toast, setToast] = useState<{ type: string; message: string } | null>(
+    null
+  );
   const [token, setToken] = useState<string | null>(null);
 
   const [outlets, setOutlets] = useState<
-  { outletId: number; name: string; headBarName: string; headBarId: string }[]
+    { outletId: number; name: string; headBarName: string; headBarId: string }[]
   >([]);
-
 
   const [currentOutlet, setCurrentOutlet] = useState<Outlet | null>(null);
 
@@ -38,7 +39,10 @@ export default function TambahLogLembur() {
     console.log("🟢 Token ditemukan:", storedToken);
 
     if (!storedToken) {
-      setToast({ type: "Gagal", message: "Token tidak ditemukan. Silakan login ulang!" });
+      setToast({
+        type: "Gagal",
+        message: "Token tidak ditemukan. Silakan login ulang!",
+      });
       return;
     }
 
@@ -49,7 +53,7 @@ export default function TambahLogLembur() {
   // FETCH OUTLETS
   const fetchOutlets = async (storedToken: string) => {
     try {
-      const res = await fetch("https://sahabattens-tenscoffeeid.up.railway.app/api/outlets", {
+      const res = await fetch("http://localhost:8080/api/outlets", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${storedToken}`,
@@ -71,7 +75,9 @@ export default function TambahLogLembur() {
 
   // ✅ HANDLE FORM CHANGE
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
 
@@ -81,33 +87,34 @@ export default function TambahLogLembur() {
     }));
 
     if (name === "outletId") {
-  const selectedOutlet = outlets.find((outlet) => outlet.outletId === parseInt(value));
+      const selectedOutlet = outlets.find(
+        (outlet) => outlet.outletId === parseInt(value)
+      );
 
-  if (selectedOutlet) {
-    setCurrentOutlet(selectedOutlet);
+      if (selectedOutlet) {
+        setCurrentOutlet(selectedOutlet);
 
-    // INI FIX-NYA
-    const headbarName = selectedOutlet.headBarName || "Tidak Ada Headbar";
+        // INI FIX-NYA
+        const headbarName = selectedOutlet.headBarName || "Tidak Ada Headbar";
 
-    console.log("✅ Outlet dipilih:", selectedOutlet);
-    console.log("✅ Verifier:", headbarName);
+        console.log("✅ Outlet dipilih:", selectedOutlet);
+        console.log("✅ Verifier:", headbarName);
 
-    setFormData((prev) => ({
-      ...prev,
-      outletId: value,
-      verifier: headbarName,
-    }));
-  } else {
-    console.warn("❌ Outlet tidak ditemukan untuk id:", value);
-    setCurrentOutlet(null);
-    setFormData((prev) => ({
-      ...prev,
-      outletId: value,
-      verifier: "",
-    }));
-  }
-}
-
+        setFormData((prev) => ({
+          ...prev,
+          outletId: value,
+          verifier: headbarName,
+        }));
+      } else {
+        console.warn("❌ Outlet tidak ditemukan untuk id:", value);
+        setCurrentOutlet(null);
+        setFormData((prev) => ({
+          ...prev,
+          outletId: value,
+          verifier: "",
+        }));
+      }
+    }
   };
 
   // ✅ HANDLE SUBMIT
@@ -115,7 +122,10 @@ export default function TambahLogLembur() {
     e.preventDefault();
 
     if (!token) {
-      setToast({ type: "Gagal", message: "Token tidak valid. Silakan login ulang!" });
+      setToast({
+        type: "Gagal",
+        message: "Token tidak valid. Silakan login ulang!",
+      });
       return;
     }
 
@@ -136,7 +146,7 @@ export default function TambahLogLembur() {
       console.log("🟢 Payload dikirim:", payload);
       console.log("🟢 Current Outlet:", currentOutlet);
 
-      const res = await fetch(`https://sahabattens-tenscoffeeid.up.railway.app/api/overtime-logs`, {
+      const res = await fetch(`http://localhost:8080/api/overtime-logs`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -157,7 +167,10 @@ export default function TambahLogLembur() {
         }
       }
 
-      setToast({ type: "Berhasil", message: "Log lembur berhasil ditambahkan!" });
+      setToast({
+        type: "Berhasil",
+        message: "Log lembur berhasil ditambahkan!",
+      });
 
       setTimeout(() => {
         window.location.href = "/jadwal/lembur";
@@ -237,7 +250,10 @@ export default function TambahLogLembur() {
 
             {currentOutlet && (
               <p className="text-sm text-gray-500 mt-1">
-                Headbar: <strong>{currentOutlet.headBarName || "Tidak Ada Headbar"}</strong>
+                Headbar:{" "}
+                <strong>
+                  {currentOutlet.headBarName || "Tidak Ada Headbar"}
+                </strong>
               </p>
             )}
           </div>

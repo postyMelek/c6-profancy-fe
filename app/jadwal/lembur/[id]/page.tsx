@@ -17,14 +17,15 @@ interface OvertimeLog {
   updatedAt: string;
 }
 
-
 export default function OvertimeLogDetail() {
   const router = useRouter();
   const params = useParams();
 
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
-  const [toast, setToast] = useState<{ type: string; message: string } | null>(null);
+  const [toast, setToast] = useState<{ type: string; message: string } | null>(
+    null
+  );
   const [token, setToken] = useState<string | null>(null);
 
   const [overtimeLog, setOvertimeLog] = useState<OvertimeLog | null>(null);
@@ -47,7 +48,10 @@ export default function OvertimeLogDetail() {
     const storedToken = localStorage.getItem("token");
 
     if (!storedToken) {
-      setToast({ type: "Gagal", message: "Token tidak ditemukan. Silakan login ulang!" });
+      setToast({
+        type: "Gagal",
+        message: "Token tidak ditemukan. Silakan login ulang!",
+      });
       setLoading(false);
       return;
     }
@@ -59,7 +63,7 @@ export default function OvertimeLogDetail() {
 
   const fetchOutlets = async (storedToken: string) => {
     try {
-      const res = await fetch("https://sahabattens-tenscoffeeid.up.railway.app/api/outlets", {
+      const res = await fetch("http://localhost:8080/api/outlets", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${storedToken}`,
@@ -84,12 +88,15 @@ export default function OvertimeLogDetail() {
     }
 
     try {
-      const res = await fetch(`https://sahabattens-tenscoffeeid.up.railway.app/api/overtime-logs/${params.id}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${storedToken}`,
-        },
-      });
+      const res = await fetch(
+        `http://localhost:8080/api/overtime-logs/${params.id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${storedToken}`,
+          },
+        }
+      );
 
       if (!res.ok) throw new Error("Gagal mengambil detail log lembur");
 
@@ -123,21 +130,27 @@ export default function OvertimeLogDetail() {
 
   const handleUpdateStatus = async () => {
     if (!token) {
-      setToast({ type: "Gagal", message: "Token tidak valid. Silakan login ulang!" });
+      setToast({
+        type: "Gagal",
+        message: "Token tidak valid. Silakan login ulang!",
+      });
       return;
     }
 
     setUpdating(true);
 
     try {
-      const res = await fetch(`https://sahabattens-tenscoffeeid.up.railway.app/api/overtime-logs/${params.id}/status`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status: formData.status }),
-      });
+      const res = await fetch(
+        `http://localhost:8080/api/overtime-logs/${params.id}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: formData.status }),
+        }
+      );
 
       if (!res.ok) {
         const contentType = res.headers.get("content-type");
@@ -168,12 +181,12 @@ export default function OvertimeLogDetail() {
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
     // try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
+    const date = new Date(dateString);
+    return date.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
     // } catch (e) {
     //   return dateString;
     // }
@@ -184,7 +197,9 @@ export default function OvertimeLogDetail() {
       return formData.verifier;
     }
 
-    const outlet = outlets.find((o) => o.outletId === parseInt(formData.outletId));
+    const outlet = outlets.find(
+      (o) => o.outletId === parseInt(formData.outletId)
+    );
     return outlet?.headBarName || "-";
   };
 
@@ -233,13 +248,18 @@ export default function OvertimeLogDetail() {
   return (
     <div className="py-10 px-4">
       <h1 className="text-3xl font-bold text-center text-[#4169E1] mb-10">
-        Detail Log Lembur <span className={getStatusClass(formData.status)}>({getStatusDisplay(formData.status)})</span>
+        Detail Log Lembur{" "}
+        <span className={getStatusClass(formData.status)}>
+          ({getStatusDisplay(formData.status)})
+        </span>
       </h1>
 
       <div className="max-w-3xl mx-auto bg-white border rounded-lg p-8 shadow space-y-6">
         <div className="space-y-6">
           <div>
-            <label htmlFor="dateOvertime" className="block mb-2 font-medium">Tanggal Lembur</label>
+            <label htmlFor="dateOvertime" className="block mb-2 font-medium">
+              Tanggal Lembur
+            </label>
             <input
               id="dateOvertime"
               name="dateOvertime"
@@ -251,7 +271,9 @@ export default function OvertimeLogDetail() {
           </div>
 
           <div>
-            <label htmlFor="startHour" className="block mb-2 font-medium">Jam Mulai</label>
+            <label htmlFor="startHour" className="block mb-2 font-medium">
+              Jam Mulai
+            </label>
             <input
               id="startHour"
               name="startHour"
@@ -263,7 +285,9 @@ export default function OvertimeLogDetail() {
           </div>
 
           <div>
-            <label htmlFor="outletName" className="block mb-2 font-medium">Outlet</label>
+            <label htmlFor="outletName" className="block mb-2 font-medium">
+              Outlet
+            </label>
             <input
               id="outletName"
               name="outletName"
@@ -275,7 +299,9 @@ export default function OvertimeLogDetail() {
           </div>
 
           <div>
-            <label htmlFor="duration" className="block mb-2 font-medium">Durasi (Jam)</label>
+            <label htmlFor="duration" className="block mb-2 font-medium">
+              Durasi (Jam)
+            </label>
             <input
               id="duration"
               name="duration"
@@ -287,7 +313,9 @@ export default function OvertimeLogDetail() {
           </div>
 
           <div>
-            <label htmlFor="reason" className="block mb-2 font-medium">Alasan Lembur</label>
+            <label htmlFor="reason" className="block mb-2 font-medium">
+              Alasan Lembur
+            </label>
             <textarea
               id="reason"
               name="reason"
@@ -299,7 +327,9 @@ export default function OvertimeLogDetail() {
           </div>
 
           <div>
-            <label htmlFor="verifier" className="block mb-2 font-medium">Verifikator</label>
+            <label htmlFor="verifier" className="block mb-2 font-medium">
+              Verifikator
+            </label>
             <input
               id="verifier"
               name="verifier"
@@ -310,7 +340,9 @@ export default function OvertimeLogDetail() {
           </div>
 
           <div>
-            <label htmlFor="status" className="block mb-2 font-medium">Status</label>
+            <label htmlFor="status" className="block mb-2 font-medium">
+              Status
+            </label>
             {overtimeLog?.status === "PENDING" ? (
               <div className="space-y-2">
                 <select
@@ -337,14 +369,18 @@ export default function OvertimeLogDetail() {
                 type="text"
                 value={getStatusDisplay(formData.status)}
                 readOnly
-                className={`w-full border border-gray-300 rounded p-2 bg-gray-100 ${getStatusClass(formData.status)}`}
+                className={`w-full border border-gray-300 rounded p-2 bg-gray-100 ${getStatusClass(
+                  formData.status
+                )}`}
               />
             )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
             <div>
-              <label className="block mb-2 text-sm text-gray-500">Tanggal Dibuat</label>
+              <label className="block mb-2 text-sm text-gray-500">
+                Tanggal Dibuat
+              </label>
               <input
                 type="text"
                 value={formatDate(overtimeLog?.createdAt || "")}
@@ -353,7 +389,9 @@ export default function OvertimeLogDetail() {
               />
             </div>
             <div>
-              <label className="block mb-2 text-sm text-gray-500">Terakhir Diperbarui</label>
+              <label className="block mb-2 text-sm text-gray-500">
+                Terakhir Diperbarui
+              </label>
               <input
                 type="text"
                 value={formatDate(overtimeLog?.updatedAt || "")}

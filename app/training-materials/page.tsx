@@ -1,57 +1,59 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Plus, FileText, Video, Users, Calendar } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Plus, FileText, Video, Users, Calendar } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
 // Import komponen Skeleton dari shadcn/ui
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface TrainingMaterial {
-  id: number
-  title: string
-  type: string
-  link: string
-  description: string
-  assignedRoles: string[]
-  createdAt: string
+  id: number;
+  title: string;
+  type: string;
+  link: string;
+  description: string;
+  assignedRoles: string[];
+  createdAt: string;
 }
 
 export default function ManajemenMateriPelatihan() {
-  const [materials, setMaterials] = useState<TrainingMaterial[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [token, setToken] = useState<string | null>(null)
-  const [userRole, setUserRole] = useState<string>("")
+  const [materials, setMaterials] = useState<TrainingMaterial[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string>("");
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token")
-    setToken(storedToken)
-    const storedRoles = localStorage.getItem("roles")
-    setUserRole(storedRoles || "")
+    const storedToken = localStorage.getItem("token");
+    setToken(storedToken);
+    const storedRoles = localStorage.getItem("roles");
+    setUserRole(storedRoles || "");
 
     const fetchMaterials = async () => {
       try {
-        setIsLoading(true)
+        setIsLoading(true);
 
         if (storedToken) {
           const response = await fetch(
-            "https://sahabattens-tenscoffeeid.up.railway.app/api/training-materials",
+            "http://localhost:8080/api/training-materials",
             {
               headers: {
                 Authorization: `Bearer ${storedToken}`,
               },
             }
-          )
+          );
 
           if (!response.ok) {
-            throw new Error(`Error fetching training materials: ${response.status}`)
+            throw new Error(
+              `Error fetching training materials: ${response.status}`
+            );
           }
 
-          const result = await response.json()
-          setMaterials(result.data)
+          const result = await response.json();
+          setMaterials(result.data);
         } else {
           // Sample data for demo purposes (jika token tidak ditemukan)
           setMaterials([
@@ -60,7 +62,8 @@ export default function ManajemenMateriPelatihan() {
               title: "Introduction to Espresso Making",
               type: "VIDEO",
               link: "https://youtu.be/j-Hu4hF5PTM?si=5iZ4D_TCW2mN-DQt",
-              description: "Pelatihan dasar dalam pembuatan espresso untuk probation barista.",
+              description:
+                "Pelatihan dasar dalam pembuatan espresso untuk probation barista.",
               assignedRoles: ["PROBATION_BARISTA", "TRAINEE_BARISTA"],
               createdAt: "2025-03-20T05:20:39.999+00:00",
             },
@@ -88,49 +91,56 @@ export default function ManajemenMateriPelatihan() {
               type: "DOCUMENT",
               link: "https://docs.example.com/brewing-methods",
               description: "Perbandingan berbagai metode brewing kopi.",
-              assignedRoles: ["TRAINEE_BARISTA", "PROBATION_BARISTA", "BARISTA", "HEAD_BARISTA"],
+              assignedRoles: [
+                "TRAINEE_BARISTA",
+                "PROBATION_BARISTA",
+                "BARISTA",
+                "HEAD_BARISTA",
+              ],
               createdAt: "2025-03-17T11:45:33.789+00:00",
             },
-          ])
+          ]);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred")
-        console.error("Error fetching training materials:", err)
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
+        console.error("Error fetching training materials:", err);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchMaterials()
-  }, [])
+    fetchMaterials();
+  }, []);
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const day = date.getDate()
-    const month = date.toLocaleString("id-ID", { month: "long" })
-    const year = date.getFullYear()
-    return `${day} ${month} ${year}`
-  }
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString("id-ID", { month: "long" });
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
 
   const handleDelete = async (id: number) => {
     if (!token) {
       // Misal: toast.error("Authentication token not found. Please login again.")
-      return
+      return;
     }
 
     if (!confirm("Are you sure you want to delete this material?")) {
-      return
+      return;
     }
 
     try {
       // Contoh penghapusan tanpa API (langsung hapus di state)
-      setMaterials(materials.filter((material) => material.id !== id))
+      setMaterials(materials.filter((material) => material.id !== id));
       // toast.success("Materi pelatihan berhasil dihapus")
     } catch (err) {
-      console.error("Error deleting training material:", err)
+      console.error("Error deleting training material:", err);
       // toast.error("An error occurred while deleting training material")
     }
-  }
+  };
 
   // Jika terjadi error
   if (error) {
@@ -141,24 +151,25 @@ export default function ManajemenMateriPelatihan() {
           <p>{error}</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="flex flex-col">
       <div className="flex flex-col items-center mb-8">
-        <h1 className="text-primary text-3xl font-bold mb-6">Manajemen Materi Pelatihan</h1>
+        <h1 className="text-primary text-3xl font-bold mb-6">
+          Manajemen Materi Pelatihan
+        </h1>
 
         {userRole === "Admin" && (
           <Link href="/training-materials/create">
-          <Button className="rounded-full">
-            <Plus className="mr-2 h-5 w-5" />
-            Tambah Materi Pelatihan
-          </Button>
-        </Link>
+            <Button className="rounded-full">
+              <Plus className="mr-2 h-5 w-5" />
+              Tambah Materi Pelatihan
+            </Button>
+          </Link>
         )}
       </div>
-      
 
       {/* 
         Jika masih loading, tampilkan skeleton "cards". 
@@ -248,7 +259,9 @@ export default function ManajemenMateriPelatihan() {
                       </span>
                     </div>
 
-                    <h3 className="text-lg font-semibold mb-2">{material.title}</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {material.title}
+                    </h3>
 
                     <div className="flex items-center text-sm text-gray-600 mb-1">
                       <Users className="mr-1 h-4 w-4" />
@@ -262,12 +275,20 @@ export default function ManajemenMateriPelatihan() {
 
                     <div className="flex space-x-2">
                       <Link href={`/training/materi/${material.id}`}>
-                        <Button size="sm" variant="outline" className="text-primary">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-primary"
+                        >
                           Detail
                         </Button>
                       </Link>
                       <Link href={`/training/materi/edit/${material.id}`}>
-                        <Button size="sm" variant="outline" className="text-primary">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-primary"
+                        >
                           Edit
                         </Button>
                       </Link>
@@ -294,5 +315,5 @@ export default function ManajemenMateriPelatihan() {
         </>
       )}
     </div>
-  )
+  );
 }

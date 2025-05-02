@@ -1,167 +1,175 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { Search, SlidersHorizontal, Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import Link from "next/link"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { Search, SlidersHorizontal, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 interface OvertimeLog {
-  id: number
-  baristaId: number
-  userId: string
-  outletId: number
-  dateOvertime: string
-  startHour: string
-  duration: string
-  reason: string
-  status: string
-  statusDisplay: string
-  verifier: string | null
-  outletName: string
-  createdAt: string
-  updatedAt: string
+  id: number;
+  baristaId: number;
+  userId: string;
+  outletId: number;
+  dateOvertime: string;
+  startHour: string;
+  duration: string;
+  reason: string;
+  status: string;
+  statusDisplay: string;
+  verifier: string | null;
+  outletName: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface Outlet {
-  outletId: number
-  name: string
-  headBarName: string
-  headBarId: string
+  outletId: number;
+  name: string;
+  headBarName: string;
+  headBarId: string;
 }
 
 export default function OvertimeLogList() {
-  const [overtimeLogs, setOvertimeLogs] = useState<OvertimeLog[]>([])
-  const [outlets, setOutlets] = useState<Outlet[]>([])
+  const [overtimeLogs, setOvertimeLogs] = useState<OvertimeLog[]>([]);
+  const [outlets, setOutlets] = useState<Outlet[]>([]);
 
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const [selectedStatus, setSelectedStatus] = useState<string>("ALL")
-  const [selectedSort, setSelectedSort] = useState<string>("tanggal-desc")
+  const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
+  const [selectedSort, setSelectedSort] = useState<string>("tanggal-desc");
 
-  const [showSort, setShowSort] = useState(false)
-  const [showFilter, setShowFilter] = useState(false)
+  const [showSort, setShowSort] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
 
   useEffect(() => {
-    fetchOvertimeLogs()
-    fetchOutlets()
-  }, [])
+    fetchOvertimeLogs();
+    fetchOutlets();
+  }, []);
 
   const fetchOvertimeLogs = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       if (!token) {
-        console.error("Token not found")
-        setLoading(false)
-        return
+        console.error("Token not found");
+        setLoading(false);
+        return;
       }
 
-      const response = await fetch("https://sahabattens-tenscoffeeid.up.railway.app/api/overtime-logs", {
+      const response = await fetch("http://localhost:8080/api/overtime-logs", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
 
-      if (!response.ok) throw new Error("Failed to fetch overtime logs")
+      if (!response.ok) throw new Error("Failed to fetch overtime logs");
 
-      const data = await response.json()
-      setOvertimeLogs(data)
+      const data = await response.json();
+      setOvertimeLogs(data);
     } catch (error) {
-      console.error("Error fetching overtime logs:", error)
+      console.error("Error fetching overtime logs:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const fetchOutlets = async () => {
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       if (!token) {
-        console.error("Token not found")
-        return
+        console.error("Token not found");
+        return;
       }
 
-      const response = await fetch("https://sahabattens-tenscoffeeid.up.railway.app/api/outlets", {
+      const response = await fetch("http://localhost:8080/api/outlets", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
 
-      if (!response.ok) throw new Error("Failed to fetch outlets")
+      if (!response.ok) throw new Error("Failed to fetch outlets");
 
-      const data = await response.json()
-      console.log("🟢 Outlets data:", data)
-      setOutlets(data)
+      const data = await response.json();
+      console.log("🟢 Outlets data:", data);
+      setOutlets(data);
     } catch (error) {
-      console.error("Error fetching outlets:", error)
+      console.error("Error fetching outlets:", error);
     }
-  }
+  };
 
   const getVerifierName = (log: OvertimeLog) => {
     if (log.verifier && log.verifier.trim() !== "") {
-      return log.verifier
+      return log.verifier;
     }
 
-    const outlet = outlets.find((o) => o.outletId === log.outletId)
-    return outlet?.headBarName || "-"
-  }
+    const outlet = outlets.find((o) => o.outletId === log.outletId);
+    return outlet?.headBarName || "-";
+  };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value)
-  }
+    setSearchTerm(e.target.value);
+  };
 
   // Filter and Sort Logic
   let filteredLogs = overtimeLogs.filter(
     (log) =>
       log.outletName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       log.reason.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  );
 
   if (selectedStatus !== "ALL") {
-    filteredLogs = filteredLogs.filter((log) => log.status === selectedStatus)
+    filteredLogs = filteredLogs.filter((log) => log.status === selectedStatus);
   }
 
   filteredLogs.sort((a, b) => {
     if (selectedSort === "tanggal-asc") {
-      return new Date(a.dateOvertime).getTime() - new Date(b.dateOvertime).getTime()
+      return (
+        new Date(a.dateOvertime).getTime() - new Date(b.dateOvertime).getTime()
+      );
     } else if (selectedSort === "tanggal-desc") {
-      return new Date(b.dateOvertime).getTime() - new Date(a.dateOvertime).getTime()
+      return (
+        new Date(b.dateOvertime).getTime() - new Date(a.dateOvertime).getTime()
+      );
     } else if (selectedSort === "durasi-asc") {
-      return parseInt(a.duration.split(":")[0]) - parseInt(b.duration.split(":")[0])
+      return (
+        parseInt(a.duration.split(":")[0]) - parseInt(b.duration.split(":")[0])
+      );
     } else if (selectedSort === "durasi-desc") {
-      return parseInt(b.duration.split(":")[0]) - parseInt(a.duration.split(":")[0])
+      return (
+        parseInt(b.duration.split(":")[0]) - parseInt(a.duration.split(":")[0])
+      );
     }
-    return 0
-  })
+    return 0;
+  });
 
   const getStatusClass = (status: string) => {
     switch (status) {
       case "APPROVED":
-        return "text-green-600"
+        return "text-green-600";
       case "REJECTED":
-        return "text-red-600"
+        return "text-red-600";
       case "PENDING":
-        return "text-yellow-600"
+        return "text-yellow-600";
       default:
-        return "text-gray-600"
+        return "text-gray-600";
     }
-  }
+  };
 
   const getStatusDisplay = (status: string) => {
     switch (status) {
       case "APPROVED":
-        return "Diterima"
+        return "Diterima";
       case "REJECTED":
-        return "Ditolak"
+        return "Ditolak";
       case "PENDING":
-        return "Menunggu Konfirmasi"
+        return "Menunggu Konfirmasi";
       default:
-        return status
+        return status;
     }
-  }
+  };
 
   return (
     <div>
@@ -182,7 +190,10 @@ export default function OvertimeLogList() {
       {/* Search & Filter */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <Search
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            size={18}
+          />
           <Input
             placeholder="Search by outlet or reason..."
             className="pl-10 w-full"
@@ -198,8 +209,8 @@ export default function OvertimeLogList() {
               variant="outline"
               className="flex items-center gap-2"
               onClick={() => {
-                setShowSort(!showSort)
-                setShowFilter(false)
+                setShowSort(!showSort);
+                setShowFilter(false);
               }}
             >
               <SlidersHorizontal size={16} />
@@ -249,8 +260,8 @@ export default function OvertimeLogList() {
               variant="outline"
               className="flex items-center gap-2"
               onClick={() => {
-                setShowFilter(!showFilter)
-                setShowSort(false)
+                setShowFilter(!showFilter);
+                setShowSort(false);
               }}
             >
               <SlidersHorizontal size={16} />
@@ -330,7 +341,9 @@ export default function OvertimeLogList() {
               filteredLogs.map((log, index) => (
                 <tr
                   key={log.id}
-                  className={`border-b border-gray-200 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
+                  className={`border-b border-gray-200 ${
+                    index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                  }`}
                 >
                   <td className="px-4 py-3">
                     {new Date(log.dateOvertime).toLocaleDateString("id-ID", {
@@ -341,7 +354,9 @@ export default function OvertimeLogList() {
                   </td>
                   <td className="px-4 py-3">{log.startHour.substring(0, 5)}</td>
                   <td className="px-4 py-3">{log.outletName}</td>
-                  <td className="px-4 py-3">{log.duration.split(":")[0]} jam</td>
+                  <td className="px-4 py-3">
+                    {log.duration.split(":")[0]} jam
+                  </td>
                   <td className="px-4 py-3">{log.reason}</td>
                   <td className={`px-4 py-3 ${getStatusClass(log.status)}`}>
                     {getStatusDisplay(log.status)}
@@ -349,7 +364,10 @@ export default function OvertimeLogList() {
                   <td className="px-4 py-3">{getVerifierName(log)}</td>
                   <td className="px-4 py-3">
                     <Link href={`/jadwal/lembur/${log.id}`}>
-                      <Button className="bg-[#4169E1] hover:bg-[#3a5ecc]" size="sm">
+                      <Button
+                        className="bg-[#4169E1] hover:bg-[#3a5ecc]"
+                        size="sm"
+                      >
                         Detail
                       </Button>
                     </Link>
@@ -361,5 +379,5 @@ export default function OvertimeLogList() {
         </table>
       </div>
     </div>
-  )
+  );
 }

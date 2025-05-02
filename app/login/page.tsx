@@ -8,17 +8,21 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Toast from "@/components/Toast";
 
-type StepType = "checkUsername" | "defaultPassword" | "login" | "changePassword";
+type StepType =
+  | "checkUsername"
+  | "defaultPassword"
+  | "login"
+  | "changePassword";
 
 function parseJwt(token: string) {
   try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     const jsonPayload = decodeURIComponent(
       atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
     );
     return JSON.parse(jsonPayload);
   } catch (e) {
@@ -37,7 +41,10 @@ export default function LoginPage() {
   const [newPassword, setNewPassword] = useState<string>("");
   const [step, setStep] = useState<StepType>("checkUsername");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [toast, setToast] = useState<{ type: "success" | "error" | "info" | "warning"; message: string } | null>(null);
+  const [toast, setToast] = useState<{
+    type: "success" | "error" | "info" | "warning";
+    message: string;
+  } | null>(null);
 
   // Fungsi untuk menentukan label button sesuai step
   const getButtonLabel = () => {
@@ -63,7 +70,7 @@ export default function LoginPage() {
       switch (step) {
         case "checkUsername": {
           const res = await fetch(
-            "https://sahabattens-tenscoffeeid.up.railway.app/api/auth/check-username",
+            "http://localhost:8080/api/auth/check-username",
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -88,20 +95,20 @@ export default function LoginPage() {
             setStep("changePassword");
             setPassword("");
           } else {
-            setToast({ type: "error", message: "Default password tidak sesuai." });
+            setToast({
+              type: "error",
+              message: "Default password tidak sesuai.",
+            });
           }
           break;
         }
 
         case "login": {
-          const res = await fetch(
-            "https://sahabattens-tenscoffeeid.up.railway.app/api/auth/login",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ username, password }),
-            }
-          );
+          const res = await fetch("http://localhost:8080/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
           const result = await res.json();
 
           if (res.ok) {
@@ -129,7 +136,7 @@ export default function LoginPage() {
 
         case "changePassword": {
           const res = await fetch(
-            `https://sahabattens-tenscoffeeid.up.railway.app/api/account/change-password?username=${username}`,
+            `http://localhost:8080/api/account/change-password?username=${username}`,
             {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
@@ -157,7 +164,6 @@ export default function LoginPage() {
         default:
           break;
       }
-
     } finally {
       setIsLoading(false); // Akhiri loading
     }
@@ -165,7 +171,10 @@ export default function LoginPage() {
 
   const handleForgotPassword = () => {
     if (!username) {
-      setToast({ type: "error", message: "Harap masukkan username terlebih dahulu." });
+      setToast({
+        type: "error",
+        message: "Harap masukkan username terlebih dahulu.",
+      });
       return;
     }
     setStep("changePassword");
@@ -174,7 +183,12 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen w-full">
       {toast && (
-        <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} duration={3000} />
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast(null)}
+          duration={3000}
+        />
       )}
       {/* Logo Section */}
       <div className="hidden md:flex md:w-1/2 items-center justify-center bg-white">
@@ -192,14 +206,19 @@ export default function LoginPage() {
       <div className="w-full md:w-1/2 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-[#3c67ff]">Barista Management System</h2>
+            <h2 className="text-3xl font-bold text-[#3c67ff]">
+              Barista Management System
+            </h2>
           </div>
 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             {/* Field Username selalu tampil.
                 Jika step "checkUsername", username di-enable. Jika tidak, di-disable */}
             <div>
-              <label htmlFor="username" className="block text-[#3b5694] text-lg mb-2">
+              <label
+                htmlFor="username"
+                className="block text-[#3b5694] text-lg mb-2"
+              >
                 Username
               </label>
               <Input
@@ -218,7 +237,10 @@ export default function LoginPage() {
             {/* Field tambahan sesuai step */}
             {step === "defaultPassword" && (
               <div>
-                <label htmlFor="password" className="block text-[#3b5694] text-lg mb-2">
+                <label
+                  htmlFor="password"
+                  className="block text-[#3b5694] text-lg mb-2"
+                >
                   Default Password
                 </label>
                 <Input
@@ -230,13 +252,18 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <p className="text-sm text-blue-500">Masukkan &quot;newuser123&quot;</p>
+                <p className="text-sm text-blue-500">
+                  Masukkan &quot;newuser123&quot;
+                </p>
               </div>
             )}
 
             {step === "login" && (
               <div>
-                <label htmlFor="password" className="block text-[#3b5694] text-lg mb-2">
+                <label
+                  htmlFor="password"
+                  className="block text-[#3b5694] text-lg mb-2"
+                >
                   Password
                 </label>
                 <Input
@@ -254,7 +281,10 @@ export default function LoginPage() {
             {step === "changePassword" && (
               <>
                 <div>
-                  <label htmlFor="combination" className="block text-[#3b5694] text-lg mb-2">
+                  <label
+                    htmlFor="combination"
+                    className="block text-[#3b5694] text-lg mb-2"
+                  >
                     Kombinasi (username@noHP)
                   </label>
                   <Input
@@ -269,7 +299,10 @@ export default function LoginPage() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="newPassword" className="block text-[#3b5694] text-lg mb-2">
+                  <label
+                    htmlFor="newPassword"
+                    className="block text-[#3b5694] text-lg mb-2"
+                  >
                     Password Baru
                   </label>
                   <Input

@@ -8,7 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 
@@ -72,10 +76,13 @@ export default function EditProfile() {
       try {
         setIsLoading(true);
         const token = localStorage.getItem("token");
-        const response = await fetch(`https://sahabattens-tenscoffeeid.up.railway.app/api/account/${originalUsername}`, {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await fetch(
+          `http://localhost:8080/api/account/${originalUsername}`,
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         if (!response.ok) {
           throw new Error(`Error fetching account data: ${response.status}`);
         }
@@ -96,7 +103,9 @@ export default function EditProfile() {
           setOutlet(data.data.outlet);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred");
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
         console.error("Error fetching account data:", err);
       } finally {
         setIsLoading(false);
@@ -144,12 +153,12 @@ export default function EditProfile() {
 
     setErrors(newErrors);
     setIsValid(Object.keys(newErrors).length === 0);
-  }; 
+  };
 
   // Jalankan validasi setiap kali field berubah
   useEffect(() => {
     validateForm();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fullName, phoneNumber, address, dateOfBirth, gender]);
 
   // Submit update ke server
@@ -169,7 +178,7 @@ export default function EditProfile() {
         payload.password = newPassword;
       }
       const response = await fetch(
-        `https://sahabattens-tenscoffeeid.up.railway.app/api/account/update-personal?username=${originalUsername}`,
+        `http://localhost:8080/api/account/update-personal?username=${originalUsername}`,
         {
           method: "PUT",
           headers: {
@@ -187,7 +196,9 @@ export default function EditProfile() {
       router.push(`/account/${originalUsername}`);
     } catch (err) {
       console.error("Error updating personal data:", err);
-      setError(err instanceof Error ? err.message : "An unknown error occurred");
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred"
+      );
     } finally {
       setIsSaving(false);
     }
@@ -226,7 +237,9 @@ export default function EditProfile() {
       setCombinationError("");
       await submitUpdate();
     } else {
-      setCombinationError("Kombinasi tidak sesuai. Pastikan format: username@noHP");
+      setCombinationError(
+        "Kombinasi tidak sesuai. Pastikan format: username@noHP"
+      );
     }
   };
 
@@ -334,9 +347,16 @@ export default function EditProfile() {
                   <h3 className="font-medium mb-2">Tanggal Lahir</h3>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-left font-normal">
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateOfBirth ? format(dateOfBirth, "dd MMMM yyyy", { locale: localeId }) : "Select birthdate"}
+                        {dateOfBirth
+                          ? format(dateOfBirth, "dd MMMM yyyy", {
+                              locale: localeId,
+                            })
+                          : "Select birthdate"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
@@ -412,7 +432,8 @@ export default function EditProfile() {
           <div className="bg-white rounded-lg p-6 w-80">
             <h2 className="text-xl font-bold mb-4">Verifikasi Kombinasi</h2>
             <p className="mb-2">
-              Masukkan Kombinasi (username@noHP). Contoh: {`${originalUsername}@81375349081`}
+              Masukkan Kombinasi (username@noHP). Contoh:{" "}
+              {`${originalUsername}@81375349081`}
             </p>
             <Input
               type="text"
@@ -421,7 +442,9 @@ export default function EditProfile() {
               className="w-full border border-gray-300 rounded-lg p-2.5 focus:outline-none mb-2"
             />
             {combinationError && (
-              <p className="text-destructive text-sm mb-2">{combinationError}</p>
+              <p className="text-destructive text-sm mb-2">
+                {combinationError}
+              </p>
             )}
             <div className="flex justify-end gap-2">
               <Button

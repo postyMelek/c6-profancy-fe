@@ -1,121 +1,129 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface AccountData {
-  fullName: string
-  username: string
-  gender: boolean
-  role: string
-  phoneNumber: string
-  dateOfBirth: string | null
-  status: string
-  outlet: string
+  fullName: string;
+  username: string;
+  gender: boolean;
+  role: string;
+  phoneNumber: string;
+  dateOfBirth: string | null;
+  status: string;
+  outlet: string;
 }
 
 interface ApiResponse {
-  status: number
-  message: string
-  timestamp: string
-  data: AccountData | null
+  status: number;
+  message: string;
+  timestamp: string;
+  data: AccountData | null;
 }
 
 export default function EditAkun() {
-  const params = useParams()
-  const router = useRouter()
-  const username = params.username as string
+  const params = useParams();
+  const router = useRouter();
+  const username = params.username as string;
 
-  const [accountData, setAccountData] = useState<AccountData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [role, setRole] = useState("")
-  const [status, setStatus] = useState("")
-  const [userRole, setUserRole] = useState<string | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
+  const [accountData, setAccountData] = useState<AccountData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [role, setRole] = useState("");
+  const [status, setStatus] = useState("");
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const storedRole = localStorage.getItem("roles")
-    setUserRole(storedRole)
+    const storedRole = localStorage.getItem("roles");
+    setUserRole(storedRole);
 
     if (storedRole !== "Admin") {
-      router.push(`/account/edit-profile/${username}`)
-      return
+      router.push(`/account/edit-profile/${username}`);
+      return;
     }
 
     const fetchAccountData = async () => {
       try {
-        setIsLoading(true)
+        setIsLoading(true);
         const token = localStorage.getItem("token");
-        const response = await fetch(`https://sahabattens-tenscoffeeid.up.railway.app/api/account/${username}`, {
+        const response = await fetch(
+          `http://localhost:8080/api/account/${username}`,
+          {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          });
+          }
+        );
         if (!response.ok) {
-          throw new Error(`Error fetching account data: ${response.status}`)
+          throw new Error(`Error fetching account data: ${response.status}`);
         }
 
-        const data: ApiResponse = await response.json()
-        setAccountData(data.data)
+        const data: ApiResponse = await response.json();
+        setAccountData(data.data);
 
         if (data.data) {
-          setRole(data.data.role)
-          setStatus(data.data.status)
+          setRole(data.data.role);
+          setStatus(data.data.status);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred")
-        console.error("Error fetching account data:", err)
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
+        console.error("Error fetching account data:", err);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
     if (username) {
-      fetchAccountData()
+      fetchAccountData();
     }
-  }, [username, router])
+  }, [username, router]);
 
   const handleSaveChanges = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      setIsSaving(true)
+      setIsSaving(true);
       const token = localStorage.getItem("token");
-      const response = await fetch(`https://sahabattens-tenscoffeeid.up.railway.app/api/account/update-role-status?username=${username}`, {
-        method: "PUT",
-        headers: {
+      const response = await fetch(
+        `http://localhost:8080/api/account/update-role-status?username=${username}`,
+        {
+          method: "PUT",
+          headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        body: JSON.stringify({
-          role,
-          status,
-        }),
-      })
+          body: JSON.stringify({
+            role,
+            status,
+          }),
+        }
+      );
 
       if (response.ok) {
-        router.push(`/account/${username}`)
+        router.push(`/account/${username}`);
       } else {
       }
     } catch (err) {
-      console.error("Error updating role and status:", err)
+      console.error("Error updating role and status:", err);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -126,7 +134,7 @@ export default function EditAkun() {
           <p>{error}</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!accountData) {
@@ -137,7 +145,7 @@ export default function EditAkun() {
           <p>The requested account could not be found.</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (userRole !== "Admin") {
@@ -151,7 +159,7 @@ export default function EditAkun() {
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -190,7 +198,12 @@ export default function EditAkun() {
                         viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg"
                       >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
                       </svg>
                     </div>
                   </div>
@@ -202,8 +215,6 @@ export default function EditAkun() {
                   </label>
                   <p>{accountData.username}</p>
                 </div>
-
-                
 
                 <div className="space-y-2">
                   <label htmlFor="nama" className="block font-medium">
@@ -265,7 +276,12 @@ export default function EditAkun() {
                         viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg"
                       >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
                       </svg>
                     </div>
                   </div>
@@ -292,6 +308,5 @@ export default function EditAkun() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-

@@ -1,15 +1,28 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowLeft, CheckCircle, XCircle, Search, Filter } from "lucide-react"
-import Link from "next/link"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, CheckCircle, XCircle, Search, Filter } from "lucide-react";
+import Link from "next/link";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -17,168 +30,184 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
 interface LeaveRequest {
-  id: string
-  userName: string
-  requestDate: string
-  leaveType: "OFF_DAY" | "IZIN"
-  reason: string
-  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELED"
-  createdAt: string
-  updatedAt: string
-  idOutlet?: number // Added to match your DTO
+  id: string;
+  userName: string;
+  requestDate: string;
+  leaveType: "OFF_DAY" | "IZIN";
+  reason: string;
+  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELED";
+  createdAt: string;
+  updatedAt: string;
+  idOutlet?: number; // Added to match your DTO
 }
 
 function parseJwt(token: string) {
   try {
-    const base64Url = token.split(".")[1]
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/")
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     const jsonPayload = decodeURIComponent(
       atob(base64)
         .split("")
         .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join(""),
-    )
-    return JSON.parse(jsonPayload)
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
   } catch (e) {
-    console.error("Failed to parse JWT:", e)
-    return null
+    console.error("Failed to parse JWT:", e);
+    return null;
   }
 }
 
 export default function ApprovalPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const requestId = searchParams.get("id")
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const requestId = searchParams.get("id");
 
-  const [pendingRequests, setPendingRequests] = useState<LeaveRequest[]>([])
-  const [filteredRequests, setFilteredRequests] = useState<LeaveRequest[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterType, setFilterType] = useState<string>("all")
-  const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [actionType, setActionType] = useState<"approve" | "reject" | null>(null)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [currentOutletId, setCurrentOutletId] = useState<number | null>(null)
-  const [outletName, setOutletName] = useState<string>("")
+  const [pendingRequests, setPendingRequests] = useState<LeaveRequest[]>([]);
+  const [filteredRequests, setFilteredRequests] = useState<LeaveRequest[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState<string>("all");
+  const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(
+    null
+  );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [actionType, setActionType] = useState<"approve" | "reject" | null>(
+    null
+  );
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [currentOutletId, setCurrentOutletId] = useState<number | null>(null);
+  const [outletName, setOutletName] = useState<string>("");
 
   useEffect(() => {
     const fetchPendingRequests = async () => {
       try {
-        const token = localStorage.getItem("token")
+        const token = localStorage.getItem("token");
 
         if (!token) {
-          router.push("/login")
-          return
+          router.push("/login");
+          return;
         }
 
         // Get user info from JWT
-        const jwtPayload = parseJwt(token)
+        const jwtPayload = parseJwt(token);
         if (!jwtPayload || !jwtPayload.sub) {
-          console.log("Invalid token, redirecting to login")
-          router.push("/login")
-          return
+          console.log("Invalid token, redirecting to login");
+          router.push("/login");
+          return;
         }
 
-        setIsLoading(true)
+        setIsLoading(true);
 
         // Fetch ALL leave requests and filter for pending ones
         const response = await fetch(
-          `https://sahabattens-tenscoffeeid.up.railway.app/api/shift-management/leave-request/all`,
+          `http://localhost:8080/api/shift-management/leave-request/all`,
           {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          },
-        )
+          }
+        );
 
         if (!response.ok) {
-          throw new Error(`Error fetching requests: ${response.status}`)
+          throw new Error(`Error fetching requests: ${response.status}`);
         }
 
-        const result = await response.json()
-        console.log("Raw API response:", result) // Debug log
+        const result = await response.json();
+        console.log("Raw API response:", result); // Debug log
 
-        const allRequests = result.data || []
+        const allRequests = result.data || [];
 
         // First, try to find the outlet ID for the current user
         if (!currentOutletId) {
           // Get outlet ID from JWT if available
           if (jwtPayload.outletId) {
-            setCurrentOutletId(Number.parseInt(jwtPayload.outletId))
-            console.log("Found outlet ID from JWT:", jwtPayload.outletId)
-            setOutletName(`Outlet #${jwtPayload.outletId}`)
+            setCurrentOutletId(Number.parseInt(jwtPayload.outletId));
+            console.log("Found outlet ID from JWT:", jwtPayload.outletId);
+            setOutletName(`Outlet #${jwtPayload.outletId}`);
           } else {
             // If not in JWT, try to get from localStorage
-            const storedOutletId = localStorage.getItem("outletId")
+            const storedOutletId = localStorage.getItem("outletId");
             if (storedOutletId) {
-              setCurrentOutletId(Number.parseInt(storedOutletId))
-              console.log("Found outlet ID from localStorage:", storedOutletId)
-              setOutletName(`Outlet #${storedOutletId}`)
+              setCurrentOutletId(Number.parseInt(storedOutletId));
+              console.log("Found outlet ID from localStorage:", storedOutletId);
+              setOutletName(`Outlet #${storedOutletId}`);
             }
           }
         }
 
         // Filter requests by outlet ID and pending status
-        let filteredByOutlet = allRequests
+        let filteredByOutlet = allRequests;
         if (currentOutletId) {
-          filteredByOutlet = allRequests.filter((req: LeaveRequest) => req.idOutlet === currentOutletId)
-          console.log(`Filtered to ${filteredByOutlet.length} requests for outlet ID ${currentOutletId}`)
+          filteredByOutlet = allRequests.filter(
+            (req: LeaveRequest) => req.idOutlet === currentOutletId
+          );
+          console.log(
+            `Filtered to ${filteredByOutlet.length} requests for outlet ID ${currentOutletId}`
+          );
         } else {
-          console.warn("No outlet ID found for filtering. Showing all requests.")
+          console.warn(
+            "No outlet ID found for filtering. Showing all requests."
+          );
         }
 
         // Filter for pending requests only
-        const pendingReqs = filteredByOutlet.filter((req: LeaveRequest) => req.status === "PENDING")
+        const pendingReqs = filteredByOutlet.filter(
+          (req: LeaveRequest) => req.status === "PENDING"
+        );
 
-        setPendingRequests(pendingReqs)
-        setFilteredRequests(pendingReqs)
+        setPendingRequests(pendingReqs);
+        setFilteredRequests(pendingReqs);
 
         // If there's a request ID in the URL, select that request
         if (requestId) {
-          const selectedReq = pendingReqs.find((req: LeaveRequest) => req.id === requestId) || null
+          const selectedReq =
+            pendingReqs.find((req: LeaveRequest) => req.id === requestId) ||
+            null;
           if (selectedReq) {
-            setSelectedRequest(selectedReq)
-            setIsDialogOpen(true)
-            setActionType("approve") // Default to approve dialog
+            setSelectedRequest(selectedReq);
+            setIsDialogOpen(true);
+            setActionType("approve"); // Default to approve dialog
           }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred")
-        console.error("Error fetching pending requests:", err)
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
+        console.error("Error fetching pending requests:", err);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchPendingRequests()
-  }, [router, requestId, currentOutletId])
+    fetchPendingRequests();
+  }, [router, requestId, currentOutletId]);
 
   // Apply filters and search
   useEffect(() => {
-    let results = pendingRequests
+    let results = pendingRequests;
 
     // Apply search term
     if (searchTerm) {
       results = results.filter(
         (req) =>
           req.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          req.reason.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
+          req.reason.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
 
     // Apply type filter
     if (filterType !== "all") {
-      results = results.filter((req) => req.leaveType === filterType)
+      results = results.filter((req) => req.leaveType === filterType);
     }
 
-    setFilteredRequests(results)
-  }, [searchTerm, filterType, pendingRequests])
+    setFilteredRequests(results);
+  }, [searchTerm, filterType, pendingRequests]);
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -187,33 +216,33 @@ export default function ApprovalPage() {
       month: "long",
       day: "numeric",
       weekday: "long",
-    }
-    return new Date(dateString).toLocaleDateString("id-ID", options)
-  }
+    };
+    return new Date(dateString).toLocaleDateString("id-ID", options);
+  };
 
   const handleApprove = async (request: LeaveRequest) => {
-    setSelectedRequest(request)
-    setActionType("approve")
-    setIsDialogOpen(true)
-  }
+    setSelectedRequest(request);
+    setActionType("approve");
+    setIsDialogOpen(true);
+  };
 
   const handleReject = async (request: LeaveRequest) => {
-    setSelectedRequest(request)
-    setActionType("reject")
-    setIsDialogOpen(true)
-  }
+    setSelectedRequest(request);
+    setActionType("reject");
+    setIsDialogOpen(true);
+  };
 
   const confirmAction = async () => {
-    if (!selectedRequest || !actionType) return
+    if (!selectedRequest || !actionType) return;
 
-    setIsProcessing(true)
+    setIsProcessing(true);
 
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
 
       // Use the correct endpoint from your controller
       const response = await fetch(
-        `https://sahabattens-tenscoffeeid.up.railway.app/api/shift-management/leave-request/${selectedRequest.id}/status`,
+        `http://localhost:8080/api/shift-management/leave-request/${selectedRequest.id}/status`,
         {
           method: "PUT",
           headers: {
@@ -224,37 +253,41 @@ export default function ApprovalPage() {
             status: actionType === "approve" ? "APPROVED" : "REJECTED",
             notes: "", // Add notes if your API requires it
           }),
-        },
-      )
+        }
+      );
 
       if (!response.ok) {
-        throw new Error(`Error ${actionType}ing request: ${response.status}`)
+        throw new Error(`Error ${actionType}ing request: ${response.status}`);
       }
 
       // Remove the request from the list
-      setPendingRequests((prev) => prev.filter((req) => req.id !== selectedRequest.id))
+      setPendingRequests((prev) =>
+        prev.filter((req) => req.id !== selectedRequest.id)
+      );
 
-      setIsDialogOpen(false)
-      setSelectedRequest(null)
-      setActionType(null)
+      setIsDialogOpen(false);
+      setSelectedRequest(null);
+      setActionType(null);
     } catch (err) {
-      console.error(`Error ${actionType}ing request:`, err)
+      console.error(`Error ${actionType}ing request:`, err);
       alert(
         err instanceof Error
           ? err.message
-          : `Gagal ${actionType === "approve" ? "menyetujui" : "menolak"} permohonan. Silakan coba lagi.`,
-      )
+          : `Gagal ${
+              actionType === "approve" ? "menyetujui" : "menolak"
+            } permohonan. Silakan coba lagi.`
+      );
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -266,16 +299,16 @@ export default function ApprovalPage() {
           <Button
             className="mt-4"
             onClick={() => {
-              console.log("Current outlet ID:", currentOutletId)
-              console.log("Pending requests:", pendingRequests)
-              alert("Check console for debug data")
+              console.log("Current outlet ID:", currentOutletId);
+              console.log("Pending requests:", pendingRequests);
+              alert("Check console for debug data");
             }}
           >
             Debug: Show Raw Data
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -288,8 +321,14 @@ export default function ApprovalPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold">Approval Permohonan Izin/Cuti</h1>
-            {outletName && <p className="text-sm text-muted-foreground">Outlet: {outletName}</p>}
+            <h1 className="text-2xl font-bold">
+              Approval Permohonan Izin/Cuti
+            </h1>
+            {outletName && (
+              <p className="text-sm text-muted-foreground">
+                Outlet: {outletName}
+              </p>
+            )}
           </div>
         </div>
 
@@ -343,11 +382,20 @@ export default function ApprovalPage() {
                   {filteredRequests.map((request) => (
                     <TableRow key={request.id}>
                       <TableCell>{formatDate(request.requestDate)}</TableCell>
-                      <TableCell className="font-medium">{request.userName}</TableCell>
-                      <TableCell>{request.leaveType === "IZIN" ? "Izin" : "Cuti"}</TableCell>
-                      <TableCell className="max-w-[300px] truncate">{request.reason}</TableCell>
+                      <TableCell className="font-medium">
+                        {request.userName}
+                      </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                        {request.leaveType === "IZIN" ? "Izin" : "Cuti"}
+                      </TableCell>
+                      <TableCell className="max-w-[300px] truncate">
+                        {request.reason}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className="bg-yellow-100 text-yellow-800 border-yellow-300"
+                        >
                           Menunggu
                         </Badge>
                       </TableCell>
@@ -386,7 +434,11 @@ export default function ApprovalPage() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{actionType === "approve" ? "Setujui Permohonan" : "Tolak Permohonan"}</DialogTitle>
+            <DialogTitle>
+              {actionType === "approve"
+                ? "Setujui Permohonan"
+                : "Tolak Permohonan"}
+            </DialogTitle>
             <DialogDescription>
               {actionType === "approve"
                 ? "Apakah Anda yakin ingin menyetujui permohonan ini?"
@@ -404,7 +456,9 @@ export default function ApprovalPage() {
                 <div>{formatDate(selectedRequest.requestDate)}</div>
 
                 <div className="font-semibold">Jenis:</div>
-                <div>{selectedRequest.leaveType === "IZIN" ? "Izin" : "Cuti"}</div>
+                <div>
+                  {selectedRequest.leaveType === "IZIN" ? "Izin" : "Cuti"}
+                </div>
 
                 <div className="font-semibold">Alasan:</div>
                 <div>{selectedRequest.reason}</div>
@@ -413,7 +467,11 @@ export default function ApprovalPage() {
           )}
 
           <DialogFooter className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isProcessing}>
+            <Button
+              variant="outline"
+              onClick={() => setIsDialogOpen(false)}
+              disabled={isProcessing}
+            >
               Batal
             </Button>
             <Button
@@ -421,12 +479,15 @@ export default function ApprovalPage() {
               onClick={confirmAction}
               disabled={isProcessing}
             >
-              {isProcessing ? "Memproses..." : actionType === "approve" ? "Setujui" : "Tolak"}
+              {isProcessing
+                ? "Memproses..."
+                : actionType === "approve"
+                ? "Setujui"
+                : "Tolak"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
-

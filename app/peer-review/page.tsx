@@ -30,7 +30,7 @@ export default function ManajemenPeerReview() {
 
         if (token) {
           const response = await fetch(
-            "https://sahabattens-tenscoffeeid.up.railway.app/api/trainee/peer-review-assignment/all",
+            "http://localhost:8080/api/trainee/peer-review-assignment/all",
             {
               headers: {
                 Authorization: `Bearer ${storedToken}`,
